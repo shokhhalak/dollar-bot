@@ -1,46 +1,40 @@
+from flask import Flask
+from threading import Thread
+app = Flask('')
+@app.route('/')
+def home(): return "Herat Dollar Bot is Alive"
+Thread(target=lambda: app.run(host='0.0.0.0',port=10000)).start()
+
+# ===== ستا د روبات اصل کوډ له دې ځایه شروع کیږي =====
 import telebot
 import requests
 import time
 from datetime import datetime
+import os
 
-TOKEN = '8496852583:AAFoFivJSDFKJoZJSq-oR1ztJL5RYS-vW14' 
-CHANNEL_ID = '@heratdollar24'
+TOKEN = os.environ.get('BOT_TOKEN')
+CHANNEL_ID = os.environ.get('CHANNEL_ID')
 
 bot = telebot.TeleBot(TOKEN)
 
 def get_dollar_price():
     try:
-        url = "https://api.tgju.org/v1/market/price/latest"
+        url = "https://api.tgju.org/v1/market/indicator/summary-table-data/price_dollar_rl"
         response = requests.get(url, timeout=10)
         data = response.json()
-        price = data['data']['price_dollar_rl']['p']
+        price = data['data']['price']
         price_afg = float(price) / 100
         return round(price_afg, 2)
     except:
-        return 70.25
+        return None
 
 def send_price():
     price = get_dollar_price()
-    time_now = datetime.now().strftime("%H:%M - %Y/%m/%d")
-    
-    message = f"""
-💵 د ډالر نرخ - هرات
+    if price:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        text = f"💵 د ډالر اوسنۍ بیه:\n\n1 USD = {price} افغانۍ\n\n⏰ وخت: {now}\n@heratdollar24"
+        bot.send_message(CHANNEL_ID, text)
 
-نن: {time_now}
-بیه: {price} افغانۍ
-
-#دالر #هرات #افغانستان
-@heratdollar24
-"""
-    
-    try:
-        bot.send_message(CHANNEL_ID, message)
-        print(f"✅ بیه ولیږل شوه: {price}")
-    except Exception as e:
-        print(f"❌ خطا: {e}")
-
-if __name__ == "__main__":
-    print("روبات چالان شو... د هرات ایلون مسک 👑")
-    while True:
-        send_price()
-        time.sleep(1800)
+while True:
+    send_price()
+    time.sleep(1800)  # هر 30 دقیقه
