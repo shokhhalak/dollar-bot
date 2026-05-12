@@ -15,7 +15,7 @@ import os
 TOKEN = os.environ.get('BOT_TOKEN')
 CHANNEL_ID = os.environ.get('CHANNEL_ID')
 
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN)8539566565:AAGoVxTZnjoi_kfXNS2qe66V2BnsF2lPuog
 
 def get_dollar_price():
     try:
